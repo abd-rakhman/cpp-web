@@ -78,6 +78,9 @@ main {
 }
 
 button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.4em 1.2em;
@@ -87,6 +90,7 @@ button {
   background-color: #7e22ce;
   cursor: pointer;
   transition: border-color 0.25s;
+  gap: 4px;
 }
 button:hover {
   border-color: #646cff;

@@ -1,0 +1,44 @@
+.root {
+    position: relative;
+    padding: var(--l-6);
+    border-radius: var(--l-radius-m);
+    background-color: var(--c-neutral-100);
+
+    box-shadow: var(--s-s), 0 0 0 1px var(--c-ring);
+
+    &[data-dense="true"] {
+        padding: var(--l-4);
+    }
+
+    &.dark {
+        background-color: var(--c-bg);
+    }
+
+    &.shimmer {
+        overflow: hidden;
+
+        &::after {
+            content: '';
+            position: absolute;
+            display: block;
+            top: 0;
+            width: 48px;
+            height: calc(100% + 12px);
+            filter: blur(8px);
+            opacity: 0.5;
+            background-color: var(--c-neutral-100);
+
+            animation: shimmer 0.8s infinite linear;
+
+            @keyframes shimmer {
+                0% {
+                    left: -32px;
+                }
+
+                100% {
+                    left: 100%;
+                }
+            }
+        }
+    }
+}

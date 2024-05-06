@@ -1,0 +1,34 @@
+.root {
+    
+  display: flex;
+  align-items: center;
+
+  gap: var(--l-2);
+
+  .indicatorWrapper {
+      height: var(--l-5);
+      width: var(--l-5);
+      border-radius: var(--l-1);
+      border: 1px solid var(--c-ring);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
+
+  &[data-state="checked"] {
+      .indicatorWrapper {
+          background-color: var(--c-primary-500);
+          color: var(--c-white);
+      }
+  }
+
+  .indicator {
+      height: var(--l-4);
+      width: var(--l-4);
+  }
+
+  .label {
+      font-size: var(--l-3);
+      color: var(--color-gray-500);
+  }
+}

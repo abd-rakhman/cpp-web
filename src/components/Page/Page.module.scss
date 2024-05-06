@@ -1,0 +1,21 @@
+.page {
+  background-color: white;
+  border-radius: var(--l-radius-m);
+  border: 1px solid var(--c-ring);
+  overflow: hidden;
+
+
+  .header {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--c-ring);
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer {
+    padding: 8px 12px;
+    border-top: 1px solid var(--c-ring);
+    justify-content: flex-end;
+    align-items: center;
+  }
+}

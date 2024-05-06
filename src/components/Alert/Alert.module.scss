@@ -1,0 +1,32 @@
+.root {
+  display: flex;
+  align-items: flex-start;
+  padding: var(--l-4);
+  border-radius: var(--l-2);
+  gap: var(--l-2);
+  font-size: .8125rem;
+  font-weight: 500;
+
+  .icon {
+      flex-shrink: 0;
+      width: var(--l-4);
+      height: var(--l-4);
+  }
+
+  &.variant {
+      &-default {
+          box-shadow: 0 0 0 1px var(--c-ring), var(--s-s);
+          background-color: var(--c-bg);
+      }
+      &-success {
+          box-shadow: var(--s-s);
+          background-color: var(--c-primary-600);
+          color: var(--c-white);
+      }
+      &-error {
+          box-shadow: var(--s-s);
+          background-color: var(--c-red);
+          color: var(--c-white);
+      }
+  }
+}

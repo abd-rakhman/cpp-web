@@ -5,7 +5,6 @@ import { useWebsocket } from './hooks/useWebsocket';
 import { BsPlay, BsArrowRepeat } from "react-icons/bs";
 import Split from 'react-split';
 
-
 const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL;
 
 function App() {
@@ -43,6 +42,13 @@ function App() {
           height: '100%',
           display: 'flex',
         }}
+        gutterStyle={() => ({
+          backgroundColor: '#24251F',
+          width: '10px',
+          cursor: 'col-resize',
+          borderRight: '1px solid rgba(118, 118, 118, 0.2)',
+          borderLeft: '1px solid rgba(118, 118, 118, 0.2)',
+        })}
       >
         <CppEditor code={code} setCode={setCode} />  
         <div className='io'>

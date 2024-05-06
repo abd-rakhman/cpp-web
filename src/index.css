@@ -37,11 +37,8 @@ h1 {
 
 .io {
   display: flex;
-  flex-direction: row;
-  height: 240px;
-  width: 100%;
-  background: #2F3129;
-  border-top: 1px solid rgba(118, 118, 118, 0.4);
+  flex-direction: column;
+  background: red #2F3129;
 }
 
 textarea {
@@ -59,14 +56,14 @@ textarea:disabled {
   opacity: 1;
 }
 
-.footer {
+.header {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
   padding: 12px 20px;
   background: #2F3129;
-  border-top: 1px solid rgba(118, 118, 118, 0.4);
+  border-bottom: 1px solid rgba(118, 118, 118, 0.4);
 }
 
 main {

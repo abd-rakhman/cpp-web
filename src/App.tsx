@@ -2,10 +2,12 @@ import { useCallback, useState } from 'react';
 import './App.css';
 import { CppEditor } from './components/CppEditor';
 import { useWebsocket } from './hooks/useWebsocket';
-import { BsPlay, BsArrowRepeat } from "react-icons/bs";
+import { BsPlay } from "react-icons/bs";
 import Split from 'react-split';
+// import { Select } from './components/Select';
+import { Button } from './components/Button';
 
-const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL;
+const WEBSOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL ?? '';
 
 function App() {
   const [code, setCode] = useState('#include<iostream>\n\nusing namespace std;\n\nint main() {\n\tcout << "Hello, World!";\n\treturn 0;\n}')
@@ -25,10 +27,9 @@ function App() {
   return (
     <main>
       <div className='header'>
-        <button onClick={handleClick} disabled={loading}>
-          {loading ? <BsArrowRepeat className='loading' /> : <BsPlay />}
+        <Button variant="primary" isLoading={loading} onClick={handleClick} disabled={loading} icon={<BsPlay />}>
           Run
-        </button>
+        </Button>
       </div>
       <Split 
         sizes={[75, 25]} 

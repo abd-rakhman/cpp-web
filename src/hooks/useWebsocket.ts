@@ -65,6 +65,6 @@ export const useWebsocket = (url: string) => {
     output,
     error,
     submit,
-    loading,
+    isLoading: loading,
   };
 }

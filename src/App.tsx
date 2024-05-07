@@ -27,7 +27,7 @@ function App() {
   return (
     <main>
       <div className='header'>
-        <Button variant="primary" onClick={handleClick} disabled={loading} icon={<BsPlay />}>
+        <Button variant="primary" isLoading={loading} onClick={handleClick} disabled={loading} icon={<BsPlay />}>
           Run
         </Button>
       </div>

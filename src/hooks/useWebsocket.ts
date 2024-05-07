@@ -7,12 +7,12 @@ export const useWebsocket = (url: string) => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  const reconnect = useCallback(() => {
+  const reconnect = useCallback((connect: () => void) => {
     if(reconnectInterval.current) return;
     reconnectInterval.current = window.setInterval(() => {
-      connect(url);
+      connect();
     }, 1000);
-  }, [url]);
+  }, []);
 
   const clearReconnect = useCallback(() => {
     if(reconnectInterval.current) {
@@ -33,7 +33,7 @@ export const useWebsocket = (url: string) => {
     ws.current.onclose = () => {
       console.log("Disconnected from server");
       setError("Disconnected from server");
-      reconnect();
+      reconnect(() => connect(url));
     }
 
     ws.current.onerror = (event) => {

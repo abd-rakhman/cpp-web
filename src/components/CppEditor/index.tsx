@@ -25,11 +25,13 @@ export const CppEditor = ({ code, setCode }: CppEditorProps) => {
 			theme="monokai"
 			value={code}
 			onChange={setCode}
-			editorProps={{ $blockScrolling: true }}
+			editorProps={{ 
+				$blockScrolling: true, 
+			}}
 			setOptions={{
 				enableBasicAutocompletion: true,
 				enableLiveAutocompletion: true,
-				enableSnippets: true
+				enableSnippets: true,
 			}}
 			fontSize={14}
 			showPrintMargin={false}

@@ -3,7 +3,6 @@ import React, { useCallback, useEffect } from "react";
 export const useWebsocket = (url: string) => {
   const ws = React.useRef<WebSocket | null>(null);
   const reconnectInterval = React.useRef<number | null>(null);
-  const [output, setOutput] = React.useState<string>('');
   const [loading, setLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -40,12 +39,6 @@ export const useWebsocket = (url: string) => {
       console.error("Error connecting to server", event);
       setError("Error connecting to server");
     }
-
-    ws.current.onmessage = (event) => {
-      console.log("Received message from server", event.data)
-      setOutput(event.data.substr(1));
-      setLoading(false);
-    }
   }, [reconnect, clearReconnect]);
 
   useEffect(() => {
@@ -56,13 +49,28 @@ export const useWebsocket = (url: string) => {
     }
   }, [url, connect]);
 
-  const submit = (code: string, input: string) => {
+  const submit = async (code: string, input: string) => {
     setLoading(true);
-    ws.current?.send(JSON.stringify({ code, stdin: input, userId: 1 }));
+    return new Promise<string>((resolve, reject) => {
+      const handleMessage = (event: MessageEvent) => {
+        ws.current?.removeEventListener('message', handleMessage);
+        const response = event.data.substr(1);
+        resolve(response);
+        setLoading(false);
+      }
+
+      ws.current?.addEventListener('message', handleMessage);
+
+      setTimeout(() => {
+        reject("Timeout");
+        setLoading(false);
+      }, 10000);
+
+      ws.current?.send(JSON.stringify({ code, stdin: input, userId: 1 }));
+    });
   }
 
   return {
-    output,
     error,
     submit,
     isLoading: loading,

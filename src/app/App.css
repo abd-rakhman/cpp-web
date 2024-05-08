@@ -5,25 +5,30 @@
   padding: 0;
 }
 
-.io {
+.card {
   display: flex;
   flex-direction: column;
   background: #2F3129;
+  gap: 0.5rem;
 }
 
-textarea {
-  resize: none;
-  border: none;
+.card-separator {
+  border-bottom: 1px solid rgba(118, 118, 118, 0.4);
+}
+
+.focus-test {
+  opacity: 0.5;
+}
+
+.io {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   background: #2F3129;
-  color: white
-}
-
-textarea:focus, input:focus {
-  outline: 0;
-}
-
-textarea:disabled {
-  opacity: 1;
+  padding: 1rem;
+  gap: 1rem;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .header {

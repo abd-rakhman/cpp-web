@@ -1,21 +1,30 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
 import './App.css';
 import { CppEditor } from '@src/components/CppEditor';
 import { useWebsocket } from '@src/hooks/useWebsocket';
-import { BsPlay } from "react-icons/bs";
+import { BsFillTrashFill, BsPlay } from "react-icons/bs";
 import Split from 'react-split';
 import { Button } from '@src/components/Button';
 import { Stack } from '@src/components/Stack';
 import { LoadingPage } from '@src/features/LoadingPage';
+import { TextArea } from '@src/components/Input';
+import clsx from 'clsx';
+import { Text } from '@src/components/Typography';
 
 const WEBSOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL ?? '';
+
+interface IOTests {
+  input: string;
+  output: string;
+}
 
 function App() {
   const [code, setCode] = useState('#include<iostream>\n\nusing namespace std;\n\nint main() {\n\tcout << "Hello, World!";\n\treturn 0;\n}');
   const [isCodeLoading, setIsCodeLoading] = useState<boolean>(true);
-  const [input, setInput] = useState<string>('');
+  const [ioTests, setIOTests] = useState<IOTests[]>([{ input: '', output: '' }]);
+  const [executingTestIndex, setExecutingTestIndex] = useState<number | null>(null);
 
   useEffect(() => {
     setIsCodeLoading(true);
@@ -27,15 +36,23 @@ function App() {
   }, []);
 
   const {
-    output,
-    error,
     submit,
     isLoading: websocketLoading,
   } = useWebsocket(WEBSOCKET_URL);
 
-  const handleClick = useCallback(() => {
-    submit(code, input);
-  }, [submit, code, input]);
+  const handleClick = useCallback(async () => {
+    for(const i in ioTests) {
+      setExecutingTestIndex(Number(i));
+      const output = await submit(code, ioTests[i].input);
+
+      setIOTests((prev) => {
+        const newIOTests = [...prev];
+        newIOTests[i].output = output;
+        return newIOTests;
+      });
+      setExecutingTestIndex(null);
+    }
+  }, [code, ioTests, submit]);
 
   if(isCodeLoading) {
     return (
@@ -46,9 +63,6 @@ function App() {
   return (
     <main>
       <Stack alignItems='center' justifyContent='flex-end' gap={8} className='header'>
-        <Button variant="default" disabled >
-          Add Input Case
-        </Button>
         <Button variant="primary" isLoading={websocketLoading} onClick={handleClick} icon={<BsPlay size={16} />}>
           Run Code
         </Button>
@@ -64,6 +78,7 @@ function App() {
           width: '100%',
           height: '100%',
           display: 'flex',
+          overflowY: 'hidden',
         }}
         gutterStyle={() => ({
           backgroundColor: '#24251F',
@@ -76,14 +91,64 @@ function App() {
         <CppEditor code={code} setCode={(code: string) => {
           setCode(code);
           localStorage.setItem('code', code);
-        }} />  
-        <div className='io'>
-          <textarea style={{ flex: 1 }} value={input} onChange={(event) => setInput(event.target.value)} />
-          <div style={{ width: '100%', borderBottom: '1px solid rgba(118, 118, 118, 0.4)'}} />
-          <textarea disabled style={{ flex: 1, }} value={error ?? output} />
-        </div>
+        }} />
+        <IOView tests={ioTests} setTests={setIOTests} selected={executingTestIndex} />
       </Split>
     </main>
+  )
+}
+
+interface IOViewProps {
+  tests: IOTests[];
+  setTests: Dispatch<SetStateAction<IOTests[]>>;
+  selected: number | null;
+}
+
+const IOView = ({ tests, setTests, selected }: IOViewProps) => {
+
+  const updateTestInput = useCallback((index: number, value: string) => {
+    setTests((prev) => {
+      const newIOTests = [...prev];
+      newIOTests[index].input = value;
+      return newIOTests;
+    });
+  }, [setTests]);
+
+  const deleteTest = useCallback((index: number) => {
+    setTests((prev) => {
+      const newIOTests = [...prev];
+      newIOTests.splice(index, 1);
+      return newIOTests;
+    });
+  }, [setTests]);
+
+  const addTest = useCallback(() => {
+    setTests((prev) => ([...prev, { input: '', output: '' }]))
+  }, [setTests]);
+
+  return (
+    <div className='io'>
+      {tests.map((test, index) => (
+        <>
+          <div key={index} className={clsx("card", selected === index && "focus-test")}>
+            <Stack justifyContent='space-between' alignItems='center'>
+              <Text size="default" style={{ marginBottom: 8 }}>Input Case {index}</Text>
+              <Button variant="default" icon={<BsFillTrashFill size={16} />} onClick={() => {
+                deleteTest(index)
+              }} />
+            </Stack>
+            <TextArea maxLength={140} label={"Input"} value={test.input} onChange={(event) => {
+              updateTestInput(index, event.target.value);
+            }} />
+            <TextArea maxLength={400} label={"Output"} disabled style={{ flex: 1, }} value={test.output} />
+          </div>
+          <div style={{ width: '100%', height: 1, minHeight: 1,  backgroundColor: 'rgba(118, 118, 118, 0.4)'}} />
+        </>
+      ))}
+      <Button onClick={addTest} variant="default">
+        Add Input Case
+      </Button>
+    </div>
   )
 }
 

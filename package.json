@@ -15,6 +15,7 @@
     "@radix-ui/themes": "^3.0.3",
     "ace-builds": "^1.33.1",
     "clsx": "^2.1.1",
+    "nanoid": "^5.0.7",
     "next": "^14.2.3",
     "react": "^18.2.0",
     "react-ace": "^11.0.1",

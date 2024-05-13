@@ -10,7 +10,6 @@ import { Button } from '@src/components/Button';
 import { Stack } from '@src/components/Stack';
 import { LoadingPage } from '@src/features/LoadingPage';
 import { TextArea } from '@src/components/Input';
-import clsx from 'clsx';
 import { Text } from '@src/components/Typography';
 
 const WEBSOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL ?? '';
@@ -24,7 +23,6 @@ function App() {
   const [code, setCode] = useState('#include<iostream>\n\nusing namespace std;\n\nint main() {\n\tcout << "Hello, World!";\n\treturn 0;\n}');
   const [isCodeLoading, setIsCodeLoading] = useState<boolean>(true);
   const [ioTests, setIOTests] = useState<IOTests[]>([{ input: '', output: '' }]);
-  const [executingTestIndex, setExecutingTestIndex] = useState<number | null>(null);
 
   useEffect(() => {
     setIsCodeLoading(true);
@@ -41,17 +39,15 @@ function App() {
   } = useWebsocket(WEBSOCKET_URL);
 
   const handleClick = useCallback(async () => {
-    for(const i in ioTests) {
-      setExecutingTestIndex(Number(i));
-      const output = await submit(code, ioTests[i].input);
-
-      setIOTests((prev) => {
-        const newIOTests = [...prev];
-        newIOTests[i].output = output;
-        return newIOTests;
+    const outputs = await submit(code, ioTests.map((test) => test.input));
+    setIOTests((prev) => {
+      return prev.map((test, index) => {
+        return {
+          ...test,
+          output: outputs[index],
+        }
       });
-      setExecutingTestIndex(null);
-    }
+    });
   }, [code, ioTests, submit]);
 
   if(isCodeLoading) {
@@ -92,7 +88,7 @@ function App() {
           setCode(code);
           localStorage.setItem('code', code);
         }} />
-        <IOView tests={ioTests} setTests={setIOTests} selected={executingTestIndex} />
+        <IOView tests={ioTests} setTests={setIOTests} />
       </Split>
     </main>
   )
@@ -101,11 +97,9 @@ function App() {
 interface IOViewProps {
   tests: IOTests[];
   setTests: Dispatch<SetStateAction<IOTests[]>>;
-  selected: number | null;
 }
 
-const IOView = ({ tests, setTests, selected }: IOViewProps) => {
-
+const IOView = ({ tests, setTests }: IOViewProps) => {
   const updateTestInput = useCallback((index: number, value: string) => {
     setTests((prev) => {
       const newIOTests = [...prev];
@@ -130,7 +124,7 @@ const IOView = ({ tests, setTests, selected }: IOViewProps) => {
     <div className='io'>
       {tests.map((test, index) => (
         <>
-          <div key={index} className={clsx("card", selected === index && "focus-test")}>
+          <div key={index} className="card">
             <Stack justifyContent='space-between' alignItems='center'>
               <Text size="default" style={{ marginBottom: 8 }}>Input Case {index}</Text>
               <Button variant="default" icon={<BsFillTrashFill size={16} />} onClick={() => {
@@ -145,9 +139,9 @@ const IOView = ({ tests, setTests, selected }: IOViewProps) => {
           <div style={{ width: '100%', height: 1, minHeight: 1,  backgroundColor: 'rgba(118, 118, 118, 0.4)'}} />
         </>
       ))}
-      <Button onClick={addTest} variant="default">
+      {tests.length < 7 && <Button onClick={addTest} variant="default">
         Add Input Case
-      </Button>
+      </Button>}
     </div>
   )
 }

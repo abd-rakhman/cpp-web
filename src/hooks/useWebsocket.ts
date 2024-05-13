@@ -7,7 +7,9 @@ export const useWebsocket = (url: string) => {
   const [error, setError] = React.useState<string | null>(null);
 
   const reconnect = useCallback((connect: () => void) => {
-    if(reconnectInterval.current) return;
+    if (reconnectInterval.current) {
+      return;
+    }
     reconnectInterval.current = window.setInterval(() => {
       connect();
     }, 1000);
@@ -49,13 +51,13 @@ export const useWebsocket = (url: string) => {
     }
   }, [url, connect]);
 
-  const submit = async (code: string, input: string) => {
+  const submit = async (code: string, inputs: string[]) => {
     setLoading(true);
-    return new Promise<string>((resolve, reject) => {
+    return new Promise<string[]>((resolve, reject) => {
       const handleMessage = (event: MessageEvent) => {
         ws.current?.removeEventListener('message', handleMessage);
-        const response = event.data.substr(1);
-        resolve(response);
+        const outputs = JSON.parse(event.data) as string[];
+        resolve(outputs.map(output => output.slice(1)));
         setLoading(false);
       }
 
@@ -66,7 +68,7 @@ export const useWebsocket = (url: string) => {
         setLoading(false);
       }, 10000);
 
-      ws.current?.send(JSON.stringify({ code, stdin: input, userId: 1 }));
+      ws.current?.send(JSON.stringify({ code, stdin: inputs, userId: 1 }));
     });
   }
 

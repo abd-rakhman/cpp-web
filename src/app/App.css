@@ -16,10 +16,6 @@
   border-bottom: 1px solid rgba(118, 118, 118, 0.4);
 }
 
-.focus-test {
-  opacity: 0.5;
-}
-
 .io {
   display: flex;
   flex-direction: column;

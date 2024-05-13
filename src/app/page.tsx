@@ -11,6 +11,7 @@ import { Stack } from '@src/components/Stack';
 import { LoadingBackdrop, LoadingPage } from '@src/features/LoadingPage';
 import { TextArea } from '@src/components/Input';
 import { Text } from '@src/components/Typography';
+import { Select } from '@src/components/Select';
 
 const WEBSOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL ?? '';
 
@@ -23,6 +24,7 @@ function App() {
   const [code, setCode] = useState('#include<iostream>\n\nusing namespace std;\n\nint main() {\n\tcout << "Hello, World!";\n\treturn 0;\n}');
   const [isCodeLoading, setIsCodeLoading] = useState<boolean>(true);
   const [ioTests, setIOTests] = useState<IOTests[]>([{ input: '', output: '' }]);
+  const [language] = useState('cpp14');
 
   useEffect(() => {
     setIsCodeLoading(true);
@@ -59,6 +61,11 @@ function App() {
   return (
     <main>
       <Stack alignItems='center' justifyContent='flex-end' gap={8} className='header'>
+        <div className=''>
+          <Select className='language-select' disabled items={[
+            { value: 'cpp14', label: 'C++14' },
+          ]} value={language} />
+        </div>
         <Button variant="primary" isLoading={websocketLoading} onClick={handleClick} icon={<BsPlay size={16} />}>
           Run Code
         </Button>

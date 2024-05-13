@@ -5,6 +5,10 @@
   padding: 0;
 }
 
+.language-select {
+  min-width: 8rem;
+}
+
 .card {
   display: flex;
   flex-direction: column;

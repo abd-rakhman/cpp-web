@@ -8,7 +8,7 @@ import { BsFillTrashFill, BsPlay } from "react-icons/bs";
 import Split from 'react-split';
 import { Button } from '@src/components/Button';
 import { Stack } from '@src/components/Stack';
-import { LoadingPage } from '@src/features/LoadingPage';
+import { LoadingBackdrop, LoadingPage } from '@src/features/LoadingPage';
 import { TextArea } from '@src/components/Input';
 import { Text } from '@src/components/Typography';
 
@@ -88,7 +88,7 @@ function App() {
           setCode(code);
           localStorage.setItem('code', code);
         }} />
-        <IOView tests={ioTests} setTests={setIOTests} />
+        <IOView tests={ioTests} setTests={setIOTests} loading={websocketLoading} />
       </Split>
     </main>
   )
@@ -97,9 +97,12 @@ function App() {
 interface IOViewProps {
   tests: IOTests[];
   setTests: Dispatch<SetStateAction<IOTests[]>>;
+  loading?: boolean;
 }
 
-const IOView = ({ tests, setTests }: IOViewProps) => {
+const IOView = ({ tests, setTests, loading = false }: IOViewProps) => {
+  const INPUTS_LIMIT = 5;
+
   const updateTestInput = useCallback((index: number, value: string) => {
     setTests((prev) => {
       const newIOTests = [...prev];
@@ -112,6 +115,9 @@ const IOView = ({ tests, setTests }: IOViewProps) => {
     setTests((prev) => {
       const newIOTests = [...prev];
       newIOTests.splice(index, 1);
+      if(newIOTests.length === 0) {
+        newIOTests.push({ input: '', output: '' });
+      } 
       return newIOTests;
     });
   }, [setTests]);
@@ -122,6 +128,7 @@ const IOView = ({ tests, setTests }: IOViewProps) => {
 
   return (
     <div className='io'>
+      {loading && <LoadingBackdrop />}
       {tests.map((test, index) => (
         <>
           <div key={index} className="card">
@@ -136,10 +143,10 @@ const IOView = ({ tests, setTests }: IOViewProps) => {
             }} />
             <TextArea maxLength={400} label={"Output"} disabled style={{ flex: 1, }} value={test.output} />
           </div>
-          <div style={{ width: '100%', height: 1, minHeight: 1,  backgroundColor: 'rgba(118, 118, 118, 0.4)'}} />
+          {index + 1 < tests.length && <div style={{ width: '100%', height: 1, minHeight: 1,  backgroundColor: 'rgba(118, 118, 118, 0.4)'}} />}
         </>
       ))}
-      {tests.length < 7 && <Button onClick={addTest} variant="default">
+      {tests.length < INPUTS_LIMIT && <Button onClick={addTest} variant="default">
         Add Input Case
       </Button>}
     </div>

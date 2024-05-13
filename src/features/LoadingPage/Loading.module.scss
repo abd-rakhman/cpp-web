@@ -12,3 +12,18 @@
     size: 64rem;
   }
 }
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .loading {
+    animation: var(--a-rotate) var(--a-time-xl) linear infinite;
+    size: 64rem;
+  }
+}

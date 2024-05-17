@@ -1,9 +1,8 @@
 'use client'
 
-import { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react';
 import './App.css';
 import { CppEditor } from '@src/components/CppEditor';
-import { useWebsocket } from '@src/hooks/useWebsocket';
 import { BsFillTrashFill, BsPlay } from "react-icons/bs";
 import Split from 'react-split';
 import { Button } from '@src/components/Button';
@@ -12,8 +11,8 @@ import { LoadingBackdrop, LoadingPage } from '@src/features/LoadingPage';
 import { TextArea } from '@src/components/Input';
 import { Text } from '@src/components/Typography';
 import { Select } from '@src/components/Select';
-
-const WEBSOCKET_URL = process.env.NEXT_PUBLIC_WEBSOCKET_URL ?? '';
+import { useMutation } from '@tanstack/react-query';
+import { BackendService, ISubmission } from '@src/services/backend';
 
 interface IOTests {
   input: string;
@@ -36,21 +35,31 @@ function App() {
   }, []);
 
   const {
-    submit,
-    isLoading: websocketLoading,
-  } = useWebsocket(WEBSOCKET_URL);
+    mutate: executeCode,
+    isPending,
+  } = useMutation({
+    mutationFn: (submission: ISubmission) => BackendService.executeCode(submission),
+    onSuccess: (data) => {
+      const outputs = data.map((output) => output.trim());
+      setIOTests((prev) => {
+        return prev.map((test, index) => {
+          return {
+            ...test,
+            output: outputs[index],
+          }
+        });
+      }); 
+    }
+  })
 
-  const handleClick = useCallback(async () => {
-    const outputs = await submit(code, ioTests.map((test) => test.input));
-    setIOTests((prev) => {
-      return prev.map((test, index) => {
-        return {
-          ...test,
-          output: outputs[index],
-        }
-      });
-    });
-  }, [code, ioTests, submit]);
+  const handleClick = useCallback(() => {
+    const inputs = ioTests.map(test => test.input);
+    const submission: ISubmission = {
+      code,
+      stdin: inputs,
+    }
+    executeCode(submission);
+  }, [code, ioTests, executeCode]);
 
   if(isCodeLoading) {
     return (
@@ -66,7 +75,7 @@ function App() {
             { value: 'cpp14', label: 'C++14' },
           ]} value={language} />
         </div>
-        <Button variant="primary" isLoading={websocketLoading} onClick={handleClick} icon={<BsPlay size={16} />}>
+        <Button variant="primary" isLoading={isPending} onClick={handleClick} icon={<BsPlay size={16} />}>
           Run Code
         </Button>
       </Stack>
@@ -95,7 +104,7 @@ function App() {
           setCode(code);
           localStorage.setItem('code', code);
         }} />
-        <IOView tests={ioTests} setTests={setIOTests} loading={websocketLoading} />
+        <IOView tests={ioTests} setTests={setIOTests} loading={isPending} />
       </Split>
     </main>
   )
@@ -137,8 +146,8 @@ const IOView = ({ tests, setTests, loading = false }: IOViewProps) => {
     <div className='io'>
       {loading && <LoadingBackdrop />}
       {tests.map((test, index) => (
-        <>
-          <div key={index} className="card">
+        <React.Fragment key={index}>
+          <div className="card">
             <Stack justifyContent='space-between' alignItems='center'>
               <Text size="default" style={{ marginBottom: 8 }}>Input Case {index}</Text>
               <Button variant="default" icon={<BsFillTrashFill size={16} />} onClick={() => {
@@ -151,7 +160,7 @@ const IOView = ({ tests, setTests, loading = false }: IOViewProps) => {
             <TextArea maxLength={400} label={"Output"} disabled style={{ flex: 1, }} value={test.output} />
           </div>
           {index + 1 < tests.length && <div style={{ width: '100%', height: 1, minHeight: 1,  backgroundColor: 'rgba(118, 118, 118, 0.4)'}} />}
-        </>
+        </React.Fragment>
       ))}
       {tests.length < INPUTS_LIMIT && <Button onClick={addTest} variant="default">
         Add Input Case

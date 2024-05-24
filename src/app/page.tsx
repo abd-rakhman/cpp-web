@@ -15,7 +15,6 @@ import { useMutation } from '@tanstack/react-query';
 import { BackendService, ISubmission } from '@src/services/backend';
 import { CodeforcesService } from '@src/services/codeforces';
 import { Modal } from '@src/components/Modal';
-import Image from 'next/image';
 import { CodeforcesIcon } from '@src/components/Icons/codeforces';
 
 interface IOTests {

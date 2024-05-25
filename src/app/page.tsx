@@ -22,17 +22,29 @@ interface IOTests {
   output: string;
 }
 
+const LOCAL_STORAGE_KEY = 'codes';
+const DEFAULT_CODE = "#include<iostream>\n\nusing namespace std;\n\nint main() {\n\tcout << \"Hello, World!\";\n\treturn 0;\n}";
+
 function App() {
-  const [code, setCode] = useState('#include<iostream>\n\nusing namespace std;\n\nint main() {\n\tcout << "Hello, World!";\n\treturn 0;\n}');
+  const [code, setCode] = useState(DEFAULT_CODE);
   const [isCodeLoading, setIsCodeLoading] = useState<boolean>(true);
   const [ioTests, setIOTests] = useState<IOTests[]>([{ input: '', output: '' }]);
   const [language] = useState('cpp14');
+  const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
 
   useEffect(() => {
     setIsCodeLoading(true);
-    const storedCode = localStorage.getItem('code');
-    if (storedCode) {
-      setCode(storedCode);
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setCode(parsed.code);
+        setIOTests(parsed.tests);
+      }
+    } catch (e) {
+      console.error('Failed to load code from local storage', e);
+      setCode('#include<iostream>\n\nusing namespace std;\n\nint main() {\n\tcout << "Hello, World!";\n\treturn 0;\n}');
+      setIOTests([{ input: '', output: '' }]);
     }
     setIsCodeLoading(false);
   }, []);
@@ -55,7 +67,19 @@ function App() {
     }
   })
 
-  
+  const saveCode = useCallback((code: string, ioTests: IOTests[]) => {
+    const stored = JSON.stringify({
+      code: code,
+      tests: ioTests,
+    });
+    localStorage.setItem(LOCAL_STORAGE_KEY, stored);
+  }, []);
+
+  useEffect(() => {
+    if(!isCodeLoading) {
+      saveCode(code, ioTests);
+    }
+  }, [code, ioTests, saveCode, isCodeLoading]);
 
   const handleClick = useCallback(() => {
     const inputs = ioTests.map(test => test.input);
@@ -74,12 +98,24 @@ function App() {
 
   return (
     <main>
+      <Modal 
+        open={isTemplateDialogOpen} 
+        title="Define Template" 
+        description="Do you want to define the current code as a template for future use? Each time you open the editor, the template will be loaded."
+        onOpenChange={() => setIsTemplateDialogOpen((prev) => !prev)} 
+        actions={
+          <>
+            <Button variant='primary' disabled>Confirm</Button>
+            <Button>Close</Button>
+          </>
+        }/>
       <Stack alignItems='center' justifyContent='flex-end' gap={8} className='header'>
         <div className=''>
           <Select className='language-select' disabled items={[
             { value: 'cpp14', label: 'C++14' },
           ]} value={language} />
         </div>
+        <Button disabled variant="default" onClick={() => setIsTemplateDialogOpen(true)}>Define Template</Button>
         <Button variant="primary" isLoading={isPending} onClick={handleClick} icon={<BsPlay size={16} />}>
           Run Code
         </Button>
@@ -107,7 +143,6 @@ function App() {
       >
         <CppEditor code={code} setCode={(code: string) => {
           setCode(code);
-          localStorage.setItem('code', code);
         }} />
         <IOView tests={ioTests} setTests={setIOTests} loading={isPending} />
       </Split>
@@ -162,7 +197,7 @@ const IOView = ({ tests, setTests, loading = false }: IOViewProps) => {
     onSuccess: (data) => {
       setTests((prevTests) => [...prevTests, ...data.sampleTests.map((test) => ({
         input: test.input,
-        output: test.output,
+        output: '',
       }))]);
       setOpenCodeforces(false);
     },
@@ -172,47 +207,49 @@ const IOView = ({ tests, setTests, loading = false }: IOViewProps) => {
   })
 
   return (
-    <div className='io'>
-      <Modal open={openCodeforces} title="Parse Codeforces Problem" onOpenChange={() => setOpenCodeforces((prev) => !prev)}>
-        <Stack direction='column' gap={8}>
-          <Stack direction='row' gap={8}>
-            <Input fullWidth label="Contest ID" placeholder='1973' required value={contestId} onChange={(e) => setContestId(Number(e.target.value))} />
-            <Input fullWidth label="Problem ID" placeholder='A' required value={problemId} onChange={(e) => setProblemId(e.target.value)} />
-          </Stack>
-          {error && <Text color="error">{error}</Text>}
-          <Button fullWidth variant="primary" onClick={() => {
-            if(!contestId || !problemId) {
-              setError('Contest ID and Problem ID are required');
-              return;
-            }
-            getCodeforcesProblem({ contestId, problemId });
-          }} isLoading={isProblemLoading}>Get Problem</Button>
-        </Stack>
-      </Modal>
-      {loading && <LoadingBackdrop />}
-      {tests.map((test, index) => (
-        <React.Fragment key={index}>
-          <div className="card">
-            <Stack justifyContent='space-between' alignItems='center'>
-              <Text size="default" style={{ marginBottom: 8 }}>Input Case {index}</Text>
-              <Button variant="default" icon={<BsFillTrashFill size={16} />} onClick={() => {
-                deleteTest(index)
-              }} />
+    <div className="relative">
+      <div className='io'>
+        <Modal open={openCodeforces} title="Parse Codeforces Problem" onOpenChange={() => setOpenCodeforces((prev) => !prev)}>
+          <Stack direction='column' gap={8}>
+            <Stack direction='row' gap={8}>
+              <Input fullWidth label="Contest ID" placeholder='1973' required value={contestId} onChange={(e) => setContestId(Number(e.target.value))} />
+              <Input fullWidth label="Problem ID" placeholder='A' required value={problemId} onChange={(e) => setProblemId(e.target.value)} />
             </Stack>
-            <TextArea maxLength={140} label={"Input"} value={test.input} onChange={(event) => {
-              updateTestInput(index, event.target.value);
-            }} />
-            <TextArea maxLength={400} label={"Output"} disabled style={{ flex: 1, }} value={test.output} />
-          </div>
-          {index + 1 < tests.length && <div style={{ width: '100%', height: 1, minHeight: 1,  backgroundColor: 'rgba(118, 118, 118, 0.4)'}} />}
-        </React.Fragment>
-      ))}
-      <Stack direction='column' gap={8}>
-        <Button onClick={() => setOpenCodeforces(true)} icon={<CodeforcesIcon size={16} />}>Parse Codeforces Problem</Button>
-        {tests.length < INPUTS_LIMIT && <Button onClick={addTest} variant="default">
-          Add Input Case
-        </Button>}
-      </Stack>
+            {error && <Text color="error">{error}</Text>}
+            <Button fullWidth variant="primary" onClick={() => {
+              if(!contestId || !problemId) {
+                setError('Contest ID and Problem ID are required');
+                return;
+              }
+              getCodeforcesProblem({ contestId, problemId });
+            }} isLoading={isProblemLoading}>Get Problem</Button>
+          </Stack>
+        </Modal>
+        {loading && <LoadingBackdrop />}
+        {tests.map((test, index) => (
+          <React.Fragment key={index}>
+            <div className="card">
+              <Stack justifyContent='space-between' alignItems='center'>
+                <Text size="default" style={{ marginBottom: 8 }}>Input Case {index}</Text>
+                <Button variant="default" icon={<BsFillTrashFill size={16} />} onClick={() => {
+                  deleteTest(index)
+                }} />
+              </Stack>
+              <TextArea maxLength={140} label={"Input"} value={test.input} onChange={(event) => {
+                updateTestInput(index, event.target.value);
+              }} style={{ height: '100px'}} />
+              <TextArea maxLength={400} label={"Output"} disabled style={{ flex: 1, height: '100px' }} value={test.output} />
+            </div>
+            {index + 1 < tests.length && <div style={{ width: '100%', height: 1, minHeight: 1,  backgroundColor: 'rgba(118, 118, 118, 0.4)'}} />}
+          </React.Fragment>
+        ))}
+        <Stack direction='column' gap={8}>
+          <Button onClick={() => setOpenCodeforces(true)} icon={<CodeforcesIcon size={16} />}>Parse Codeforces Problem</Button>
+          {tests.length < INPUTS_LIMIT && <Button onClick={addTest} variant="default">
+            Add Input Case
+          </Button>}
+        </Stack>
+      </div>
     </div>
   )
 }

@@ -98,22 +98,20 @@ function App() {
       </Modal>
       <Tabs selectedIndex={selectedTab} onSelect={(index) => setSelectedTab(index)} selectedTabClassName='selected-tab' className="full-content hidden flex flex-col">
         <Stack justifyContent='space-between' gap={8} className='header'>
-          <Stack direction="row" grow={1} alignItems='flex-end' justifyContent='flex-start' className='file-tabs'>
+          <Stack direction="row" grow={1} alignItems='flex-end' justifyContent='flex-start' gap={4} className='file-tabs'>
             <TabList className="tabs-list">
-              {Object.entries(storage).map(([key, value]) => (
+              {Object.entries(storage).map(([key, value], index) => (
                 <Tab key={key} style={{ padding: '8px' }}>
                   <Stack alignItems='center' gap={8}>
                     <span>{value.name}</span>
-                    <button onClick={() => removeCode(key)} style={{ padding: '0px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%'}}>
+                    {selectedTab === index && <button onClick={() => removeCode(key)} className='ghost-button' style={{ padding: '0px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%'}}>
                       <BsX size={16} />
-                    </button>
+                    </button>}
                   </Stack>
                 </Tab>
               ))}
             </TabList>
-            <button onClick={() => setIsNewFileDialogOpen(true)} style={{ padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%'}}>
-              <BsPlusLg size={16} />
-            </button>
+            <button className='ghost-button' onClick={() => setIsNewFileDialogOpen(true)} style={{ margin: '4px'}}><BsPlusLg size={16} /></button> 
           </Stack>
           <Stack className="header-actions" alignItems='center' gap={8}>
             <div className=''>

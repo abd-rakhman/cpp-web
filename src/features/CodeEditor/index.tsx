@@ -215,7 +215,7 @@ const IOView = ({ tests, setTests, loading = false, execute }: IOViewProps) => {
             Add Input Case
           </Button>}
         </Stack>
-        <Button className='align-bottom' variant="primary" isLoading={loading} onClick={execute} icon={<BsPlay size={16} />}>
+        <Button className='align-bottom' variant="primary" onClick={execute} icon={<BsPlay size={16} />}>
           Run Code
         </Button>
       </div>

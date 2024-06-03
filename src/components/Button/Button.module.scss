@@ -97,10 +97,12 @@
 
             &:hover {
                 color: var(--c-primary-400);
+                background-color: var(--c-neutral-100)
             }
 
             &:active:not(:disabled) {
-                color: var(--c-primary-600);
+                color: var(--c-primary-400);
+                background-color: var(--c-neutral-200);
             }
         }
     }

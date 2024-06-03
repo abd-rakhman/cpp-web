@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useRef, useState } from 'react';
 import './App.css';
 import { Button } from '@src/components/Button';
 import { Stack } from '@src/components/Stack';

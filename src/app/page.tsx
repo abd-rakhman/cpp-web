@@ -5,15 +5,17 @@ import './App.css';
 import { Button } from '@src/components/Button';
 import { Stack } from '@src/components/Stack';
 import { LoadingPage } from '@src/features/LoadingPage';
-import { Select } from '@src/components/Select';
 import { Modal } from '@src/components/Modal';
 import { CodeEditor } from '@src/features/CodeEditor';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
-import { BsPlusLg, BsX } from 'react-icons/bs';
+import { BsGear, BsPlusLg, BsX } from 'react-icons/bs';
 import { Input } from '@src/components/Input';
 import { StorageContext } from '@src/providers/storage';
 import { useHotkeys } from 'react-hotkeys-hook';
+import * as Popover from '@radix-ui/react-popover';
+import { Text } from '@src/components/Typography';
+
 
 const DEFAULT_CODE = "#include<iostream>\n\nusing namespace std;\n\nint main() {\n\tcout << \"Hello, World!\";\n\treturn 0;\n}";
 
@@ -23,7 +25,6 @@ export interface IO {
 }
 
 function App() {
-  const [language] = useState('cpp14');
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
   const [isNewFileDialogOpen, setIsNewFileDialogOpen] = useState(false);
   const filenameRef = useRef<HTMLInputElement>(null);
@@ -39,6 +40,8 @@ function App() {
     isLoading: isStorageLoading,
     addCode,
     removeCode,
+    template,
+    setTemplate
   } = storageContext;
 
   useHotkeys('ctrl+shift+n', () => {
@@ -48,13 +51,14 @@ function App() {
   const handleAddCode = useCallback((name: string) => {
     addCode({
       name,
-      code: DEFAULT_CODE,
+      code: template ?? DEFAULT_CODE,
       io: [{
         input: '',
         output: ''
       }]
     })
-  }, [addCode])
+  }, [addCode, template]);
+
 
   if(isStorageLoading) {
     return (
@@ -69,12 +73,15 @@ function App() {
         title="Define Template" 
         description="Do you want to define the current code as a template for future use? Each time you open the editor, the template will be loaded."
         onOpenChange={() => setIsTemplateDialogOpen((prev) => !prev)}
-        actions={ 
-          <>
-            <Button variant='primary' disabled>Confirm</Button>
-            <Button>Close</Button>
-          </>
-        }/>
+      >
+        <Stack direction='row' gap={8} justifyContent='flex-end'>
+          <Button onClick={() => {
+            setTemplate(storage[Object.keys(storage)[selectedTab]].code)
+            setIsTemplateDialogOpen(false)
+          }} variant='primary'>Confirm</Button>
+          <Button>Close</Button>
+        </Stack>
+      </Modal>
       <Modal
         open={isNewFileDialogOpen}
         title="New File"
@@ -114,11 +121,21 @@ function App() {
             <button className='ghost-button' onClick={() => setIsNewFileDialogOpen(true)} style={{ margin: '4px'}}><BsPlusLg size={16} /></button> 
           </Stack>
           <Stack className="header-actions" alignItems='center' gap={8}>
-            <div className=''>
-              <Select className='language-select' disabled items={[
-                { value: 'cpp14', label: 'C++14' },
-              ]} value={language} />
-            </div>
+            <Popover.Root>
+              <Popover.Trigger>
+                <Button icon={<BsGear size={16} />} />
+              </Popover.Trigger>
+              <Popover.Content className='popover-content'>
+                <Stack direction='column' gap={8}>
+                  <Stack justifyContent='space-between' style={{ padding: '8px'}}>
+                    <Text>Language: </Text>
+                    <Text>C++14</Text>
+                  </Stack>
+                  <div style={{ width: '100%', height: 1, minHeight: 1,  backgroundColor: 'rgba(118, 118, 118, 0.4)'}} />
+                  <Button onClick={() => setIsTemplateDialogOpen(true)}>Define as Template</Button>
+                </Stack>
+              </Popover.Content>
+            </Popover.Root>
           </Stack>
         </Stack>
         {Object.entries(storage).map(([key, value]) => (

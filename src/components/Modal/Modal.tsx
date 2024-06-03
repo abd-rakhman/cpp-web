@@ -12,7 +12,6 @@ interface Props extends Dialog.DialogProps {
   maxWidth?: 'xs' | 'sm' | 'md' | 'lg';
   title?: string;
   description?: string;
-  actions?: React.ReactNode;
   close?: boolean;
 }
 
@@ -24,7 +23,7 @@ export const ModalActions: React.FC<HTMLAttributes<HTMLDivElement>> = ({ classNa
   <div className={clsx(cls.actions, className)} {...props} />
 );
 
-const Modal: React.FC<Props> = ({ maxWidth = 'sm', title, description, actions, children, open, close, ...props }) => {
+const Modal: React.FC<Props> = ({ maxWidth = 'sm', title, description, children, open, close, ...props }) => {
   return (
     <Dialog.Root
       open={open}
@@ -42,7 +41,6 @@ const Modal: React.FC<Props> = ({ maxWidth = 'sm', title, description, actions, 
                 </Dialog.DialogClose>
               ) : null}
               {children}
-              {actions && <Dialog.Close className={cls.actions}>{actions}</Dialog.Close> }
             </Dialog.Content>
           </div>
         </Dialog.Overlay>

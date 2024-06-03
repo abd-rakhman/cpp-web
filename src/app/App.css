@@ -119,3 +119,13 @@ main {
 .ghost-button:active {
   background-color: var(--c-neutral-300);
 }
+
+.popover-content {
+  background: #2F3129;
+  border-radius: 5px;
+  padding: 0.5rem;
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  width: 320px;
+  padding: 1rem;
+}

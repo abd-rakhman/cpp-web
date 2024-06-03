@@ -17,6 +17,8 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { StorageContext } from '@src/providers/storage';
 import AceEditor from 'react-ace';
 
+import './CodeEditor.css';
+
 const DEFAULT_CODE = "#include<iostream>\n\nusing namespace std;\n\nint main() {\n\tcout << \"Hello, World!\";\n\treturn 0;\n}";
 
 interface CodeEditorProps {
@@ -213,7 +215,7 @@ const IOView = ({ tests, setTests, loading = false, execute }: IOViewProps) => {
             Add Input Case
           </Button>}
         </Stack>
-        <Button aria-label="Cmd+Shift+E" variant="primary" isLoading={loading} onClick={execute} icon={<BsPlay size={16} />}>
+        <Button className='align-bottom' variant="primary" isLoading={loading} onClick={execute} icon={<BsPlay size={16} />}>
           Run Code
         </Button>
       </div>

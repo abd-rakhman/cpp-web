@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import type { HTMLAttributes, CSSProperties } from 'react';
 import React from 'react';
+import 'react-tabs/style/react-tabs.css';
 
 import cls from './Stack.module.scss';
 

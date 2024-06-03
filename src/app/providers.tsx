@@ -1,5 +1,6 @@
 'use client'
 
+import { StorageProvider } from "@src/providers/storage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ReactNode } from "react";
 
@@ -8,7 +9,7 @@ export const Providers = ({ children }: { children: ReactNode }) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <StorageProvider>{children}</StorageProvider>
     </QueryClientProvider>
   )
 }

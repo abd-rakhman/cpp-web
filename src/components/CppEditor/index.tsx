@@ -2,6 +2,10 @@ import AceEditor from 'react-ace';
 
 import "ace-builds/src-noconflict/mode-c_cpp";
 import "ace-builds/src-noconflict/theme-monokai";
+import "ace-builds/src-noconflict/ext-language_tools"
+import "ace-builds/src-noconflict/snippets/c_cpp"
+import "ace-builds/src-noconflict/ext-searchbox"
+
 import React from 'react';
 
 interface CppEditorProps {
@@ -9,14 +13,17 @@ interface CppEditorProps {
 	setCode: (code: string) => void;
 }
 
-export const CppEditor = ({ code, setCode }: CppEditorProps) => {
-	const ref = React.useRef<AceEditor>(null);
-
+export const CppEditor = React.forwardRef<AceEditor, CppEditorProps>((
+	{ code, setCode }, 
+	ref,
+) => {
 	React.useEffect(() => {
-		if (ref.current) {
-			ref.current.editor.setShowPrintMargin(false);
+		const aceRef = ref as React.MutableRefObject<AceEditor>;
+
+		if (aceRef.current) {
+			aceRef.current.editor.setShowPrintMargin(false);
 		}
-	}, []);
+	}, [ref]);
 
 	return (
 		<AceEditor
@@ -32,6 +39,7 @@ export const CppEditor = ({ code, setCode }: CppEditorProps) => {
 				enableBasicAutocompletion: true,
 				enableLiveAutocompletion: true,
 				enableSnippets: true,
+				showLineNumbers: true,
 			}}
 			fontSize={14}
 			showPrintMargin={false}
@@ -43,4 +51,6 @@ export const CppEditor = ({ code, setCode }: CppEditorProps) => {
 			}}
 		/>
 	);
-}
+});
+
+CppEditor.displayName = 'CppEditor';

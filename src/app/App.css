@@ -20,6 +20,23 @@
   border-bottom: 1px solid rgba(118, 118, 118, 0.4);
 }
 
+.full-content {
+  height: 100%;
+  width: 100%;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
 .io {
   display: flex;
   flex-direction: column;
@@ -36,9 +53,48 @@
 }
 
 .header {
-  padding: 12px 20px;
   background: #2F3129;
   border-bottom: 1px solid rgba(118, 118, 118, 0.4);
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.file-tabs {
+  overflow-x: scroll;
+}
+
+.file-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.header-actions {
+  margin: 8px;
+}
+
+.selected-tab {
+  background-color: #2F3129;
+  border-radius: 5px 5px 0px 0px;
+  border-color: rgba(118, 118, 118, 0.4) !important;
+}
+
+.selected-tab-panel {
+  display: block !important;
+  height: 100%;
+  overflow: hidden;
+}
+
+.tabs-list {
+  margin: 0px;
+  padding: 0px;
+  height: min-content;
+}
+
+.tab {
+  padding: 8px 12px;
+}
+
+.align-bottom {
+  margin-top: auto;
 }
 
 main {
